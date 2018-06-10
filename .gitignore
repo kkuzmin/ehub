@@ -1,0 +1,7 @@
+./local_dev/dev_config.js
+.nyc_output/
+.idea/
+.project
+node_modules/
+coverage/
+/ebin/

@@ -19,7 +19,7 @@
             "defaultValue": "api.global-services.global.alertlogic.com",
             "allowedValues" : [
                 "api.global-services.global.alertlogic.com",
-                "api.global-integration.us-west-2.product.dev.alertlogic.com"
+                "api.global-integration.product.dev.alertlogic.com"
             ]
         },
         "Alert Logic Data Residency": {
@@ -47,10 +47,10 @@
         "subscriptionId": "[split(subscription().id, '/')[2]]",
         "tenantId": "[subscription().tenantId]",
         "contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "ehubNsName": "AlertLogic-Ingest",
-        "ehubForLogName": "AlertLogic-Logs-Hub",
         "repo": "https://github.com/kkuzmin/ehub.git",
-        "branch": "master"
+        "branch": "master",
+        "ehubNsName": "AlertLogicIngestion",
+        "ehubForLogName": "AlertLogicLogHub"
     },
     "resources": [
         {
@@ -110,6 +110,10 @@
                         {
                             "name": "APP_TENANT_ID",
                             "value": "[variables('tenantId')]"
+                        },
+                        {
+                            "name": "APP_LOG_EHUB_ACCESS_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('ehubNsName'), variables('ehubForLogName')), '2017-04-01').primaryConnectionString]"
                         }
                     ],
                     "connectionStrings": [
@@ -148,7 +152,8 @@
                 "clientAffinityEnabled": false
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage Name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('Storage Name'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('ehubNsName'), variables('ehubForLogName'))]"
             ],
             "resources": [{
                 "apiVersion": "2015-08-01",
@@ -194,44 +199,26 @@
             "apiVersion": "2017-04-01",
             "location": "[variables('location')]",
             "tags": {},
-            "scale": null,
             "properties": {
                 "isAutoInflateEnabled": true,
                 "maximumThroughputUnits": 16
             },
-            "dependsOn": []
-        },
-        {
-            "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
-            "name": "AlertLogicSharedAccessKey",
-            "apiVersion": "2017-04-01",
-            "location": "[variables('location')]",
-            "scale": null,
-            "properties": {
-                "rights": [
-                    "Listen",
-                    "Manage",
-                    "Send"
-                ]
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', variables('ehubNsName')))]"
+            "dependsOn": [],
+            "resources": [
+                {
+                    "type": "eventhubs",
+                    "name": "[variables('ehubForLogName')]",
+                    "apiVersion": "2017-04-01",
+                    "location": "[variables('location')]",
+                    "properties": {
+                        "messageRetentionInDays": 7,
+                        "partitionCount": 4
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.EventHub/namespaces', variables('ehubNsName'))]"
+                    ]
+                }
             ]
-        },
-        {
-            "type": "Microsoft.EventHub/namespaces/eventhubs",
-            "name": "[variables('ehubForLogName')]",
-            "apiVersion": "2017-04-01",
-            "location": "[variables('location')]",
-            "scale": null,
-            "properties": {
-                "messageRetentionInDays": 7,
-                "partitionCount": 4,
-                "status": "Active"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', variables('ehubNsName'))]"
-            ]
-        },
+        }
     ]
 }

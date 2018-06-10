@@ -4,8 +4,8 @@
       "type": "eventHubTrigger",
       "name": "eventHubMessages",
       "direction": "in",
-      "path": "insights-operational-logs",
-      "connection": "kk-test_RootManageSharedAccessKey_EVENTHUB",
+      "path": "AlertLogic-Logs-Hub",
+      "connection": "APP_LOG_EHUB_ACCESS_KEY",
       "cardinality": "many",
       "consumerGroup": "$Default"
     }
