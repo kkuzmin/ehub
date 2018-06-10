@@ -1,0 +1,32 @@
+{
+  "name": "azure_collector",
+  "version": "1.0.8",
+  "dependencies": {
+    "async": "*",
+    "azure": "^2.0.0-preview",
+    "moment": "^2.20.1",
+    "parse-key-value": "^1.0.0",
+    "path": "^0.12.7",
+    "protobufjs": "*",
+    "request-promise-native": "^1.0.4"
+  },
+  "scripts": {
+    "local-master": "node ./local_dev/master_local_dev.js",
+    "local-updater": "node ./local_dev/updater_local_dev.js",
+    "local-o365webhook": "node ./local_dev/o365webhook_local_dev.js",
+    "local-aims": "node ./local_dev/aims_token_local_dev.js",
+    "local-ad": "node ./local_dev/ad_token_local_dev.js",
+    "local-version": "node ./local_dev/version_local_dev.js",
+    "lint": "jshint --exclude \"./node_modules/*\" **/*.js",
+    "test": "JUNIT_REPORT_PATH=./test/report.xml nyc --reporter=cobertura mocha --colors --reporter mocha-jenkins-reporter"
+  },
+  "devDependencies": {
+    "jshint": "^2.9.5",
+    "mocha": "^3.5.3",
+    "mocha-jenkins-reporter": "^0.3.10",
+    "nyc": "^11.3.0",
+    "pre-commit": "^1.2.2",
+    "rewire": "^2.5.2",
+    "sinon": "^3.3.0"
+  }
+}
